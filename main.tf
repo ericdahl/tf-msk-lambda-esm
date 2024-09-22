@@ -68,8 +68,8 @@ resource "aws_msk_cluster" "default" {
     revision = aws_msk_configuration.default.latest_revision
   }
   broker_node_group_info {
-    client_subnets = values(aws_subnet.public)[*].id
-    instance_type = "kafka.t3.small"
+    client_subnets  = values(aws_subnet.public)[*].id
+    instance_type   = "kafka.t3.small"
     security_groups = [aws_security_group.msk.id]
 
     connectivity_info {
@@ -86,7 +86,7 @@ resource "aws_msk_cluster" "default" {
 }
 
 resource "aws_msk_configuration" "default" {
-  name           = local.name
+  name = local.name
 
   server_properties = <<PROPERTIES
 auto.create.topics.enable = true

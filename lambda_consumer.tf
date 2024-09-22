@@ -113,9 +113,9 @@ resource "aws_cloudwatch_log_group" "consumer" {
 }
 
 resource "aws_lambda_event_source_mapping" "consumer" {
-  function_name = aws_lambda_function.consumer.function_name
+  function_name    = aws_lambda_function.consumer.function_name
   event_source_arn = aws_msk_cluster.default.arn
-  topics = ["DemoTopic"]
+  topics           = ["DemoTopic"]
   amazon_managed_kafka_event_source_config {
     consumer_group_id = aws_lambda_function.consumer.function_name
   }
