@@ -75,19 +75,19 @@ resource "aws_iam_role_policy_attachment" "lambda_producer_vpc_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
 
-resource "null_resource" "build_lambda_producer_package" {
-  provisioner "local-exec" {
-    command = <<EOT
-      cd lambda/producer && \
-      docker build -t lambda-builder . && \
-      docker run --rm -v $(pwd):/app lambda-builder sh -c 'cp /lambda_function.zip /app/lambda_function.zip'
-    EOT
-  }
-
-  triggers = {
-    always_run = "${sha1(file("${path.module}/lambda/producer/src/main.py"))}"
-  }
-}
+# resource "null_resource" "build_lambda_producer_package" {
+#   provisioner "local-exec" {
+#     command = <<EOT
+#       cd lambda/producer && \
+#       docker build -t lambda-builder . && \
+#       docker run --rm -v $(pwd):/app lambda-builder sh -c 'cp /lambda_function.zip /app/lambda_function.zip'
+#     EOT
+#   }
+#
+#   triggers = {
+#     always_run = "${sha1(file("${path.module}/lambda/producer/src/main.py"))}"
+#   }
+# }
 
 
 resource "aws_lambda_function" "producer" {
@@ -110,7 +110,7 @@ resource "aws_lambda_function" "producer" {
 
   }
 
-  depends_on = [null_resource.build_lambda_producer_package]
+  #   depends_on = [null_resource.build_lambda_producer_package]
 }
 
 resource "aws_cloudwatch_log_group" "producer" {

@@ -29,16 +29,16 @@ resource "aws_security_group_rule" "msk_ingress_ec2" {
   description              = "allow ingress from ec2_debug"
 }
 
-# resource "aws_security_group_rule" "msk_ingress_lambda_producer" {
-#   from_port                = 9098
-#   protocol                 = "tcp"
-#   security_group_id        = aws_security_group.msk.id
-#   to_port                  = 9098
-#   type                     = "ingress"
-#   source_security_group_id = aws_security_group.lambda_producer.id
-#   description              = "allow ingress from lambda_producer"
-# }
-#
+resource "aws_security_group_rule" "msk_ingress_lambda_producer" {
+  from_port                = 9098
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.msk.id
+  to_port                  = 9098
+  type                     = "ingress"
+  source_security_group_id = aws_security_group.lambda_producer.id
+  description              = "allow ingress from lambda_producer"
+}
+
 resource "aws_security_group_rule" "msk_ingress_lambda_consumer" {
   from_port                = 9098
   protocol                 = "tcp"
@@ -67,21 +67,29 @@ resource "aws_msk_cluster" "default" {
     arn      = aws_msk_configuration.default.arn
     revision = aws_msk_configuration.default.latest_revision
   }
+
+  client_authentication {
+    sasl {
+      iam = true
+    }
+
+    tls {}
+  }
   broker_node_group_info {
     client_subnets  = values(aws_subnet.public)[*].id
     instance_type   = "kafka.t3.small"
     security_groups = [aws_security_group.msk.id]
 
-    connectivity_info {
-      vpc_connectivity {
-        client_authentication {
-          sasl {
-            iam = true
-          }
-
-        }
-      }
-    }
+    #     connectivity_info {
+    #       vpc_connectivity {
+    #         client_authentication {
+    #           sasl {
+    #             iam = true
+    #           }
+    #
+    #         }
+    #       }
+    #     }
   }
 }
 
@@ -103,4 +111,8 @@ data "aws_iam_policy_document" "assume_policy_lambda" {
       identifiers = ["lambda.amazonaws.com"]
     }
   }
+}
+
+output "iam_bs" {
+  value = aws_msk_cluster.default.bootstrap_brokers_sasl_iam
 }
